@@ -5,6 +5,6 @@
     未优化版本，占内存大，只用作阅读参考
 
 # 文件目录
-* index.html 文件主页
-* digit.js 存放数字的点阵数据
-* countdown.js 具体的逻辑
+* `index.html` 文件主页
+* `digit.js` 存放数字的点阵数据
+* `countdown.js` 具体的逻辑
