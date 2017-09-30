@@ -1,8 +1,8 @@
-var WINDOW_WIDTH  = 1024;
-var WINDOW_HEIGHT = 600;
-var RADIUS        = 8;      //每个小圆的半径长
-var MARGIN_TOP    = 50;     //每个数字的上边距
-var MARGIN_LEFT   = 20;     //每个数字的左边距
+var WINDOW_WIDTH;   //屏幕宽
+var WINDOW_HEIGHT;  //屏幕高
+var RADIUS;         //每个小圆的半径长
+var MARGIN_TOP;     //每个数字的上边距
+var MARGIN_LEFT;    //每个数字的左边距
 
 const endTime = new Date(2017,8,31,00,00,00);       //倒计时结束的时间
 var curTime = 0;                                    //当前时间距倒计时的剩余时间
@@ -11,6 +11,13 @@ var balls = [];   //存放掉落的小球
 var colors = ['#33b5e5','#0099cc','#aa66cc','9933cc','#99cc00','#669900','#ffbb33','ff8800','ff4444','#cc0000']; //存放掉落的小球的颜色
 
 window.onload = function(){
+
+    WINDOW_WIDTH  = document.documentElement.clientWidth-20;           //获取用户屏幕宽
+    WINDOW_HEIGHT = document.documentElement.clientHeight-20;          //获取用户屏幕高
+    MARGIN_LEFT   = Math.round(WINDOW_WIDTH/10);                       //每个数字的左边距
+    MARGIN_TOP    = Math.round(WINDOW_HEIGHT/5);                       //每个数字的上边距
+    RADIUS        = Math.round(WINDOW_WIDTH*4/5/107)-1;                //每个小圆的半径长
+
     var canvas  = document.getElementById('canvas');
     var context = canvas.getContext('2d');
 
@@ -70,6 +77,7 @@ function update(){
         curTime = nextTime;
     }
     updateBalls();
+
 }
 
 /*updateBalls():修改每个小球的位置，完成小球掉落的特效
@@ -87,6 +95,20 @@ function updateBalls(){
             balls[i].vy = -balls[i].vy*0.7;
         }
     }
+
+    //性能优化一：将滚出屏幕的小球从balls数组中删除
+    var cnt = 0;                            //记录当前是第几个还在屏幕内的小球
+    for(var i=0;i < len;i++){
+        //判断条件：小球在屏幕内
+        if(balls[i].x+RADIUS > 0 && balls[i].x-RADIUS < WINDOW_WIDTH){
+            balls[cnt++] = balls[i];        //如果小球在屏幕内，将其在数组的位置移至最前
+        }
+    }
+
+    //cnt将记录还在屏幕内的小球的总个数，且数组的下标大于cnt的元素为可删除的小球
+    while( balls.length > cnt){
+        balls.pop();                        //删除滚出屏幕外的小球
+    }
 }
 
 /*addBalls(): 将当前变化的一位数字所包含的小球（之后要掉落的小球）存放在Array balls中
@@ -100,11 +122,11 @@ function addBalls(x,y,num){
             if (digit[num][i][j] == 1) {
                     //新建一个aball对象存放组成数字的各个小球的信息
                     var aball = {
-                        x : Number(MARGIN_LEFT+x+(2*j+1)*(RADIUS+1)),               //小球的x起始坐标
-                        y : Number(MARGIN_TOP+y+(2*i+1)*(RADIUS+1)),                //小球的y起始坐标
-                        vx : Number(4*Math.pow(-1,parseInt(1000*Math.random()))),   //小球的起始x速度
-                        vy : -10,                                                   //小球的起始y速度
-                        g : Number(2+3*Math.random().toFixed(1)),                   //小球的掉落加速度
+                        x : x+(2*j+1)*(RADIUS+1),                           //小球的x起始坐标
+                        y : y+(2*i+1)*(RADIUS+1),                           //小球的y起始坐标
+                        vx : 4*Math.pow(-1,parseInt(1000*Math.random())),   //小球的起始x速度
+                        vy : -10,                                           //小球的起始y速度
+                        g : 1+3*Math.random().toFixed(1),                   //小球的掉落加速度
                         color : colors[Math.floor((colors.length)*Math.random())]   //小球的颜色
                     }
                     balls.push(aball);      //将小球push到数组balls中
